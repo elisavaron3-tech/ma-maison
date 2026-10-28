@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <title>Ma maison</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f6f3ec;
+      color: #35483b;
+    }
+    header {
+      background: #dce8d8;
+      padding: 24px;
+      text-align: center;
+    }
+    h1 { margin: 0 0 8px; }
+    main {
+      max-width: 700px;
+      margin: 30px auto;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 3px 14px #0000000b;
+    }
+    input, button {
+      width: 100%;
+      padding: 13px;
+      margin: 7px 0;
+      border-radius: 9px;
+      font-size: 16px;
+    }
+    input { border: 1px solid #bbb; }
+    button {
+      background: #52745b;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .secondary { background: #8a9486; }
+    .hidden { display: none; }
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .menu button {
+      min-height: 90px;
+      font-size: 18px;
+    }
+    #message { white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🏡 Ma maison</h1>
+  <p>Notre quotidien, au même endroit</p>
+</header>
+
+<main>
+  <section id="login" class="card">
+    <h2>Bienvenue à la maison</h2>
+    <p>Connecte-toi avec ton compte personnel.</p>
+
+    <form id="loginForm">
+      <input id="email" type="email"
+             placeholder="Adresse e-mail"
+             autocomplete="email" required>
+
+      <input id="password" type="password"
+             placeholder="Mot de passe"
+             autocomplete="current-password" required>
+
+      <button type="submit">Se connecter</button>
+    </form>
+
+    <p id="message" role="status"></p>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="card">
+      <h2>Bienvenue chez nous 🌿</h2>
+      <p id="userEmail"></p>
+      <p id="householdStatus">
+        Vérification de ton foyer...
+      </p>
+      <button id="logout" class="secondary">
+        Se déconnecter
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>Les espaces de Ma maison</h2>
+      <div class="menu">
+        <button disabled>🥫 Cuisine</button>
+        <button disabled>🍽️ Repas</button>
+        <button disabled>🛒 Courses</button>
+        <button disabled>💶 Budget</button>
+        <button disabled>🧹 Maison</button>
+      </div>
+      <p>
+        Les rubriques seront activées
+        au fur et à mesure de leur création.
+      </p>
+    </div>
+  </section>
+</main>
+
+<script type="module">
+  import { createClient } from
+    "https://esm.sh/@supabase/supabase-js@2";
+
+  const supabase = createClient(
+    "https://smfqayodttfllvuvzdfe.supabase.co",
+    "sb_publishable_-uKaXCBfp7UH4U30ql40HA_iElwLcT3"
+  );
+
+  const login = document.getElementById("login");
+  const dashboard = document.getElementById("dashboard");
+  const message = document.getElementById("message");
+  const householdStatus =
+    document.getElementById("householdStatus");
+
+  async function showSession(session) {
+    if (!session) {
+      login.classList.remove("hidden");
+      dashboard.classList.add("hidden");
+      return;
+    }
+
+    login.classList.add("hidden");
+    dashboard.classList.remove("hidden");
+
+    document.getElementById("userEmail").textContent =
+      session.user.email || "Compte connecté";
+
+    const { data, error } = await supabase
+      .from("household_members")
+      .select("household_id, role")
+      .eq("user_id", session.user.id)
+      .limit(1);
+
+    if (error) {
+      householdStatus.textContent =
+        "Erreur de vérification : " + error.message;
+    } else if (data && data.length > 0) {
+      householdStatus.textContent =
+        "✅ Tu es bien membre du foyer Ma maison.";
+    } else {
+      householdStatus.textContent =
+        "Aucun foyer associé à ce compte.";
+    }
+  }
+
+  document.getElementById("loginForm")
+    .addEventListener("submit", async (event) => {
+      event.preventDefault();
+      message.textContent = "Connexion en cours...";
+
+      const email =
+        document.getElementById("email").value.trim();
+      const password =
+        document.getElementById("password").value;
+
+      const { error } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if (error) {
+        message.textContent =
+          "Connexion impossible : " + error.message;
+      } else {
+        message.textContent = "";
+        document.getElementById("password").value = "";
+      }
+    });
+
+  document.getElementById("logout")
+    .addEventListener("click", async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) alert(error.message);
+    });
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    setTimeout(() => showSession(session), 0);
+  });
+
+  const { data: { session } } =
+    await supabase.auth.getSession();
+
+  await showSession(session);
+</script>
+</body>
+</html>
