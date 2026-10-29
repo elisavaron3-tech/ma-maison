@@ -1,206 +1,969 @@
 
+
 <!DOCTYPE html>
+
 <html lang="fr">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport"
-        content="width=device-width, initial-scale=1">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Ma maison</title>
+
   <style>
+
     * { box-sizing: border-box; }
+
     body {
+
       margin: 0;
+
       font-family: Arial, sans-serif;
+
       background: #f6f3ec;
+
       color: #35483b;
+
     }
+
     header {
+
       background: #dce8d8;
+
       padding: 24px;
+
       text-align: center;
+
     }
+
     h1 { margin: 0 0 8px; }
+
     main {
-      max-width: 700px;
-      margin: 30px auto;
-      padding: 20px;
+
+      max-width: 750px;
+
+      margin: 24px auto;
+
+      padding: 16px;
+
     }
+
     .card {
+
       background: white;
-      padding: 24px;
+
+      padding: 22px;
+
       border-radius: 18px;
+
       margin-bottom: 16px;
+
       box-shadow: 0 3px 14px #0000000b;
+
     }
-    input, button {
+
+    input, select, textarea, button {
+
       width: 100%;
-      padding: 13px;
-      margin: 7px 0;
+
+      padding: 12px;
+
+      margin: 6px 0;
+
       border-radius: 9px;
-      font-size: 16px;
+
+      font: inherit;
+
     }
-    input { border: 1px solid #bbb; }
+
+    input, select, textarea {
+
+      border: 1px solid #bbb;
+
+      background: white;
+
+      color: #35483b;
+
+    }
+
     button {
+
       background: #52745b;
+
       color: white;
+
       border: none;
+
       cursor: pointer;
+
     }
+
+    button:disabled {
+
+      opacity: .5;
+
+      cursor: not-allowed;
+
+    }
+
     .secondary { background: #8a9486; }
-    .hidden { display: none; }
+
+    .danger { background: #a85d55; }
+
+    .hidden { display: none !important; }
+
     .menu {
+
       display: grid;
+
       grid-template-columns: repeat(2, 1fr);
+
       gap: 12px;
+
     }
+
     .menu button {
-      min-height: 90px;
-      font-size: 18px;
+
+      min-height: 80px;
+
+      font-size: 17px;
+
     }
-    #message { white-space: pre-wrap; }
+
+    .actions {
+
+      display: flex;
+
+      gap: 8px;
+
+      flex-wrap: wrap;
+
+    }
+
+    .actions button {
+
+      width: auto;
+
+      flex: 1;
+
+    }
+
+    .stock-item {
+
+      padding: 15px 0;
+
+      border-bottom: 1px solid #e6e6e0;
+
+    }
+
+    .stock-item:last-child { border-bottom: none; }
+
+    .stock-title {
+
+      font-size: 18px;
+
+      font-weight: bold;
+
+    }
+
+    .muted {
+
+      color: #69766c;
+
+      font-size: 14px;
+
+    }
+
+    .notice {
+
+      background: #eef3eb;
+
+      border-radius: 10px;
+
+      padding: 12px;
+
+    }
+
+    #message, #stockMessage {
+
+      white-space: pre-wrap;
+
+    }
+
+    @media (max-width: 450px) {
+
+      .menu { grid-template-columns: 1fr 1fr; }
+
+      .card { padding: 17px; }
+
+    }
+
   </style>
+
 </head>
+
 <body>
 
 <header>
+
   <h1>🏡 Ma maison</h1>
+
   <p>Notre quotidien, au même endroit</p>
+
 </header>
 
 <main>
+
   <section id="login" class="card">
+
     <h2>Bienvenue à la maison</h2>
+
     <p>Connecte-toi avec ton compte personnel.</p>
 
     <form id="loginForm">
+
       <input id="email" type="email"
+
              placeholder="Adresse e-mail"
+
              autocomplete="email" required>
 
       <input id="password" type="password"
+
              placeholder="Mot de passe"
+
              autocomplete="current-password" required>
 
       <button type="submit">Se connecter</button>
+
     </form>
 
     <p id="message" role="status"></p>
+
   </section>
 
   <section id="dashboard" class="hidden">
+
     <div class="card">
+
       <h2>Bienvenue chez nous 🌿</h2>
+
       <p id="userEmail"></p>
-      <p id="householdStatus">
-        Vérification de ton foyer...
-      </p>
+
+      <p id="householdStatus">Vérification de ton foyer...</p>
+
       <button id="logout" class="secondary">
+
         Se déconnecter
+
       </button>
+
     </div>
 
     <div class="card">
+
       <h2>Les espaces de Ma maison</h2>
+
       <div class="menu">
-        <button disabled>🥫 Cuisine</button>
+
+        <button id="cuisineBtn" disabled>🥫 Cuisine</button>
+
         <button disabled>🍽️ Repas</button>
+
         <button disabled>🛒 Courses</button>
+
         <button disabled>💶 Budget</button>
+
         <button disabled>🧹 Maison</button>
+
       </div>
-      <p>
-        Les rubriques seront activées
-        au fur et à mesure de leur création.
+
+      <p class="muted">
+
+        Les autres rubriques seront ajoutées progressivement.
+
       </p>
+
     </div>
+
+    <section id="cuisine" class="hidden">
+
+      <div class="card">
+
+        <div class="actions">
+
+          <button id="backBtn" class="secondary">
+
+            ← Retour
+
+          </button>
+
+          <button id="refreshBtn">
+
+            Actualiser
+
+          </button>
+
+        </div>
+
+        <h2>🥫 Mes stocks</h2>
+
+        <p>Les aliments disponibles à la maison.</p>
+
+        <input id="stockSearch" type="search"
+
+               placeholder="Rechercher un aliment">
+
+        <div id="stockList"></div>
+
+      </div>
+
+      <div class="card">
+
+        <h2 id="formTitle">Ajouter un aliment</h2>
+
+        <form id="foodForm">
+
+          <label for="foodName">Nom de l'aliment</label>
+
+          <input id="foodName" required maxlength="120"
+
+                 placeholder="Ex. : Riz">
+
+          <label for="foodCategory">Catégorie</label>
+
+          <select id="foodCategory">
+
+            <option value="">Sans catégorie</option>
+
+            <option>Fruits</option>
+
+            <option>Légumes</option>
+
+            <option>Féculents</option>
+
+            <option>Produits frais</option>
+
+            <option>Viandes et poissons</option>
+
+            <option>Épicerie</option>
+
+            <option>Boissons</option>
+
+            <option>Surgelés</option>
+
+            <option>Autres</option>
+
+          </select>
+
+          <label for="foodQuantity">Quantité</label>
+
+          <input id="foodQuantity" type="number"
+
+                 min="0" step="any" value="1" required>
+
+          <label for="foodUnit">Unité</label>
+
+          <select id="foodUnit">
+
+            <option value="pièce">Pièce(s)</option>
+
+            <option value="g">Grammes (g)</option>
+
+            <option value="kg">Kilogrammes (kg)</option>
+
+            <option value="ml">Millilitres (ml)</option>
+
+            <option value="L">Litres (L)</option>
+
+            <option value="paquet">Paquet(s)</option>
+
+            <option value="boîte">Boîte(s)</option>
+
+          </select>
+
+          <label for="foodExpiry">Date de péremption</label>
+
+          <input id="foodExpiry" type="date">
+
+          <label for="foodNotes">Remarques</label>
+
+          <textarea id="foodNotes" rows="2"
+
+                    placeholder="Ex. : Dans le placard"></textarea>
+
+          <button id="saveFood" type="submit">
+
+            Enregistrer l'aliment
+
+          </button>
+
+          <button id="cancelEdit" type="button"
+
+                  class="secondary hidden">
+
+            Annuler la modification
+
+          </button>
+
+        </form>
+
+        <p id="stockMessage" role="status"></p>
+
+      </div>
+
+    </section>
+
   </section>
+
 </main>
 
 <script type="module">
+
   import { createClient } from
+
     "https://esm.sh/@supabase/supabase-js@2";
 
   const supabase = createClient(
+
     "https://smfqayodttfllvuvzdfe.supabase.co",
+
     "sb_publishable_-uKaXCBfp7UH4U30ql40HA_iElwLcT3"
+
   );
 
-  const login = document.getElementById("login");
-  const dashboard = document.getElementById("dashboard");
-  const message = document.getElementById("message");
-  const householdStatus =
-    document.getElementById("householdStatus");
+  const $ = id => document.getElementById(id);
 
-  async function showSession(session) {
-    if (!session) {
-      login.classList.remove("hidden");
-      dashboard.classList.add("hidden");
-      return;
-    }
+  let householdId = null;
 
-    login.classList.add("hidden");
-    dashboard.classList.remove("hidden");
+  let foods = [];
 
-    document.getElementById("userEmail").textContent =
-      session.user.email || "Compte connecté";
+  let editingId = null;
 
-    const { data, error } = await supabase
-      .from("household_members")
-      .select("household_id, role")
-      .eq("user_id", session.user.id)
-      .limit(1);
+  let sessionVersion = 0;
 
-    if (error) {
-      householdStatus.textContent =
-        "Erreur de vérification : " + error.message;
-    } else if (data && data.length > 0) {
-      householdStatus.textContent =
-        "✅ Tu es bien membre du foyer Ma maison.";
-    } else {
-      householdStatus.textContent =
-        "Aucun foyer associé à ce compte.";
-    }
+  function setStockMessage(text) {
+
+    $("stockMessage").textContent = text;
+
   }
 
-  document.getElementById("loginForm")
-    .addEventListener("submit", async (event) => {
-      event.preventDefault();
-      message.textContent = "Connexion en cours...";
+  function resetFoodForm() {
 
-      const email =
-        document.getElementById("email").value.trim();
-      const password =
-        document.getElementById("password").value;
+    editingId = null;
 
-      const { error } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
+    $("foodForm").reset();
 
-      if (error) {
-        message.textContent =
-          "Connexion impossible : " + error.message;
-      } else {
-        message.textContent = "";
-        document.getElementById("password").value = "";
+    $("foodQuantity").value = "1";
+
+    $("formTitle").textContent = "Ajouter un aliment";
+
+    $("saveFood").textContent = "Enregistrer l'aliment";
+
+    $("cancelEdit").classList.add("hidden");
+
+  }
+
+  function formatDate(date) {
+
+    if (!date) return "";
+
+    const parts = date.split("-");
+
+    return parts.length === 3
+
+      ? `${parts[2]}/${parts[1]}/${parts[0]}`
+
+      : date;
+
+  }
+
+  function createText(tag, content, className = "") {
+
+    const element = document.createElement(tag);
+
+    element.textContent = content;
+
+    if (className) element.className = className;
+
+    return element;
+
+  }
+
+  function renderFoods() {
+
+    const list = $("stockList");
+
+    list.replaceChildren();
+
+    const search = $("stockSearch").value
+
+      .trim().toLocaleLowerCase("fr");
+
+    const filtered = foods.filter(food =>
+
+      (food.name || "").toLocaleLowerCase("fr")
+
+        .includes(search)
+
+    );
+
+    if (!filtered.length) {
+
+      list.appendChild(createText(
+
+        "p",
+
+        search
+
+          ? "Aucun aliment ne correspond à la recherche."
+
+          : "Aucun aliment enregistré pour le moment.",
+
+        "notice"
+
+      ));
+
+      return;
+
+    }
+
+    for (const food of filtered) {
+
+      const item = document.createElement("div");
+
+      item.className = "stock-item";
+
+      item.appendChild(createText(
+
+        "div", food.name || "Sans nom", "stock-title"
+
+      ));
+
+      const details = [
+
+        `${food.quantity ?? 0} ${food.unit || ""}`,
+
+        food.category || "",
+
+        food.expiry_date
+
+          ? `À consommer avant le ${formatDate(food.expiry_date)}`
+
+          : ""
+
+      ].filter(Boolean).join(" · ");
+
+      item.appendChild(createText("p", details, "muted"));
+
+      if (food.notes) {
+
+        item.appendChild(createText("p", food.notes));
+
       }
+
+      const actions = document.createElement("div");
+
+      actions.className = "actions";
+
+      const edit = createText("button", "Modifier");
+
+      edit.type = "button";
+
+      edit.addEventListener("click", () => editFood(food.id));
+
+      const remove = createText("button", "Supprimer");
+
+      remove.type = "button";
+
+      remove.className = "danger";
+
+      remove.addEventListener("click", () => deleteFood(food.id));
+
+      actions.append(edit, remove);
+
+      item.appendChild(actions);
+
+      list.appendChild(item);
+
+    }
+
+  }
+
+  async function loadFoods() {
+
+    if (!householdId) return;
+
+    const expectedHousehold = householdId;
+
+    $("stockList").textContent = "Chargement des stocks...";
+
+    const { data, error } = await supabase
+
+      .from("food_items")
+
+      .select("id,name,quantity,unit,category,expiry_date,notes")
+
+      .eq("household_id", expectedHousehold)
+
+      .order("name", { ascending: true });
+
+    if (householdId !== expectedHousehold) return;
+
+    if (error) {
+
+      $("stockList").textContent =
+
+        "Impossible de charger les stocks : " + error.message;
+
+      return;
+
+    }
+
+    foods = data || [];
+
+    renderFoods();
+
+  }
+
+  function editFood(id) {
+
+    const food = foods.find(item => item.id === id);
+
+    if (!food) return;
+
+    editingId = food.id;
+
+    $("foodName").value = food.name || "";
+
+    $("foodCategory").value = food.category || "";
+
+    $("foodQuantity").value = food.quantity ?? 1;
+
+    $("foodUnit").value = food.unit || "pièce";
+
+    $("foodExpiry").value = food.expiry_date || "";
+
+    $("foodNotes").value = food.notes || "";
+
+    $("formTitle").textContent = "Modifier un aliment";
+
+    $("saveFood").textContent = "Enregistrer les modifications";
+
+    $("cancelEdit").classList.remove("hidden");
+
+    setStockMessage("");
+
+    $("foodForm").scrollIntoView({
+
+      behavior: "smooth", block: "start"
+
     });
 
-  document.getElementById("logout")
-    .addEventListener("click", async () => {
-      const { error } = await supabase.auth.signOut();
-      if (error) alert(error.message);
+  }
+
+  async function deleteFood(id) {
+
+    if (!householdId) return;
+
+    const food = foods.find(item => item.id === id);
+
+    if (!food) return;
+
+    if (!confirm(`Supprimer « ${food.name} » des stocks ?`)) {
+
+      return;
+
+    }
+
+    const { error } = await supabase
+
+      .from("food_items")
+
+      .delete()
+
+      .eq("id", id)
+
+      .eq("household_id", householdId);
+
+    if (error) {
+
+      setStockMessage("Erreur : " + error.message);
+
+      return;
+
+    }
+
+    if (editingId === id) resetFoodForm();
+
+    setStockMessage("Aliment supprimé.");
+
+    await loadFoods();
+
+  }
+
+  $("foodForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    if (!householdId) return;
+
+    const quantity = Number($("foodQuantity").value);
+
+    if (!Number.isFinite(quantity) || quantity < 0) {
+
+      setStockMessage("Indique une quantité valide.");
+
+      return;
+
+    }
+
+    const payload = {
+
+      name: $("foodName").value.trim(),
+
+      category: $("foodCategory").value || null,
+
+      quantity,
+
+      unit: $("foodUnit").value,
+
+      expiry_date: $("foodExpiry").value || null,
+
+      notes: $("foodNotes").value.trim() || null
+
+    };
+
+    if (!payload.name) return;
+
+    $("saveFood").disabled = true;
+
+    setStockMessage("Enregistrement en cours...");
+
+    let result;
+
+    if (editingId) {
+
+      result = await supabase
+
+        .from("food_items")
+
+        .update(payload)
+
+        .eq("id", editingId)
+
+        .eq("household_id", householdId)
+
+        .select("id");
+
+    } else {
+
+      result = await supabase
+
+        .from("food_items")
+
+        .insert({
+
+          ...payload,
+
+          household_id: householdId
+
+        })
+
+        .select("id");
+
+    }
+
+    $("saveFood").disabled = false;
+
+    if (result.error) {
+
+      setStockMessage("Erreur : " + result.error.message);
+
+      return;
+
+    }
+
+    if (!result.data || !result.data.length) {
+
+      setStockMessage(
+
+        "Enregistrement non confirmé. Vérifie les droits Supabase."
+
+      );
+
+      return;
+
+    }
+
+    resetFoodForm();
+
+    setStockMessage("Aliment enregistré avec succès !");
+
+    await loadFoods();
+
+  });
+
+  $("cancelEdit").addEventListener("click", () => {
+
+    resetFoodForm();
+
+    setStockMessage("");
+
+  });
+
+  $("stockSearch").addEventListener("input", renderFoods);
+
+  $("refreshBtn").addEventListener("click", loadFoods);
+
+  $("cuisineBtn").addEventListener("click", async () => {
+
+    if (!householdId) return;
+
+    $("cuisine").classList.remove("hidden");
+
+    $("cuisine").scrollIntoView({ behavior: "smooth" });
+
+    await loadFoods();
+
+  });
+
+  $("backBtn").addEventListener("click", () => {
+
+    $("cuisine").classList.add("hidden");
+
+  });
+
+  async function showSession(session) {
+
+    const version = ++sessionVersion;
+
+    householdId = null;
+
+    foods = [];
+
+    resetFoodForm();
+
+    $("cuisine").classList.add("hidden");
+
+    $("cuisineBtn").disabled = true;
+
+    if (!session) {
+
+      $("login").classList.remove("hidden");
+
+      $("dashboard").classList.add("hidden");
+
+      return;
+
+    }
+
+    $("login").classList.add("hidden");
+
+    $("dashboard").classList.remove("hidden");
+
+    $("userEmail").textContent =
+
+      session.user.email || "Compte connecté";
+
+    $("householdStatus").textContent =
+
+      "Vérification de ton foyer...";
+
+    const { data, error } = await supabase
+
+      .from("household_members")
+
+      .select("household_id,role")
+
+      .eq("user_id", session.user.id)
+
+      .limit(1);
+
+    if (version !== sessionVersion) return;
+
+    if (error) {
+
+      $("householdStatus").textContent =
+
+        "Erreur de vérification : " + error.message;
+
+    } else if (data && data.length > 0) {
+
+      householdId = data[0].household_id;
+
+      $("householdStatus").textContent =
+
+        "✅ Tu es bien membre du foyer Ma maison.";
+
+      $("cuisineBtn").disabled = false;
+
+    } else {
+
+      $("householdStatus").textContent =
+
+        "Aucun foyer associé à ce compte.";
+
+    }
+
+  }
+
+  $("loginForm").addEventListener("submit", async event => {
+
+    event.preventDefault();
+
+    $("message").textContent = "Connexion en cours...";
+
+    const email = $("email").value.trim();
+
+    const password = $("password").value;
+
+    const { error } = await supabase.auth.signInWithPassword({
+
+      email, password
+
     });
+
+    if (error) {
+
+      $("message").textContent =
+
+        "Connexion impossible : " + error.message;
+
+    } else {
+
+      $("message").textContent = "";
+
+      $("password").value = "";
+
+    }
+
+  });
+
+  $("logout").addEventListener("click", async () => {
+
+    const { error } = await supabase.auth.signOut();
+
+    if (error) alert(error.message);
+
+  });
 
   supabase.auth.onAuthStateChange((_event, session) => {
+
     setTimeout(() => showSession(session), 0);
+
   });
 
   const { data: { session } } =
+
     await supabase.auth.getSession();
 
   await showSession(session);
+
 </script>
+
 </body>
+
 </html>
